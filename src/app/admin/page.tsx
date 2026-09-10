@@ -1,0 +1,435 @@
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { Badge } from "@/components/ui/form";
+import { EventActions } from "@/components/admin/event-actions";
+import { GalleryModeration } from "@/components/admin/gallery-moderation";
+import { PostModeration } from "@/components/admin/post-moderation";
+import { services } from "@/lib/services";
+import { getCurrentUser } from "@/lib/session";
+import { formatEventDate, formatShortDate, formatTime, initials } from "@/lib/format";
+import { adminUsers, metricCards } from "@/data/mock-data";
+import type { AdminRole, GalleryItem, CommunityContent } from "@/types";
+
+export const dynamic = "force-dynamic";
+
+const TABS = [
+  { id: "overview", label: "Overview" },
+  { id: "events", label: "Events" },
+  { id: "users", label: "Users" },
+  { id: "content", label: "Content" },
+  { id: "gallery", label: "Gallery" },
+  { id: "settings", label: "Settings" },
+] as const;
+
+type TabId = (typeof TABS)[number]["id"];
+
+function canAdmin(role: AdminRole): boolean {
+  return role === "super_admin" || role === "event_manager" || role === "content_moderator";
+}
+
+function StatusBadge({ status }: { status: string }) {
+  if (status === "published") return <Badge tone="success">{status}</Badge>;
+  if (status === "pending") return <Badge tone="warning">{status}</Badge>;
+  if (status === "removed") return <Badge tone="danger">{status}</Badge>;
+  return <Badge tone="neutral">{status}</Badge>;
+}
+
+export default async function AdminPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const params = await searchParams;
+  const rawTab = params.tab;
+  const tab: TabId =
+    typeof rawTab === "string" && TABS.some((t) => t.id === rawTab)
+      ? (rawTab as TabId)
+      : "overview";
+
+  const user = await getCurrentUser();
+  if (!user) redirect("/login?next=/admin");
+  if (!canAdmin(user.role)) redirect("/dashboard");
+
+  const [allEvents, posts, galleryItems, summary, profiles] = await Promise.all([
+    services.events.list(),
+    services.community.list(),
+    services.gallery.list(),
+    services.events.getSummary(),
+    services.profiles.list(),
+  ]);
+
+  const publishedEvents = allEvents.filter((e) => e.published);
+  const pendingPosts = posts.filter((p) => p.status === "pending");
+  const pendingGallery = galleryItems.filter((g) => g.status === "pending");
+  const upcomingEvents = allEvents
+    .filter((e) => e.published)
+    .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time))
+    .slice(0, 3);
+
+  return (
+    <main className="bg-background text-foreground">
+      <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <p className="text-xs uppercase tracking-[0.22em] text-accent">Admin</p>
+        <h1 className="mt-3 text-4xl font-black tracking-tight text-foreground sm:text-5xl">Club control room</h1>
+        <p className="mt-4 max-w-2xl text-lg text-foreground/80">
+          Events, members, content, and gallery � everything WAGMI&apos;s crew keeps running.
+        </p>
+      </section>
+
+      {/* Tab bar */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <nav className="flex flex-wrap gap-2 rounded-2xl border border-foreground/10 bg-surface p-2" aria-label="Admin sections">
+          {TABS.map((t) => (
+            <Link
+              key={t.id}
+              href={`/admin?tab=${t.id}`}
+              className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${
+                tab === t.id
+                  ? "bg-accent text-accent-ink"
+                  : "text-foreground/80 hover:bg-foreground/10 hover:text-foreground"
+              }`}
+            >
+              {t.label}
+            </Link>
+          ))}
+        </nav>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        {tab === "overview" && (
+          <>
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              <div className="rounded-3xl border border-foreground/10 bg-surface p-6">
+                <p className="text-sm text-muted">Published events</p>
+                <p className="mt-4 text-4xl font-black text-foreground">{summary.published}</p>
+                <p className="mt-2 text-sm text-accent">{summary.draft} drafts pending</p>
+              </div>
+              <div className="rounded-3xl border border-foreground/10 bg-surface p-6">
+                <p className="text-sm text-muted">Members</p>
+                <p className="mt-4 text-4xl font-black text-foreground">{profiles.length}</p>
+                <p className="mt-2 text-sm text-accent">growing every week</p>
+              </div>
+              <div className="rounded-3xl border border-foreground/10 bg-surface p-6">
+                <p className="text-sm text-muted">Total RSVPs</p>
+                <p className="mt-4 text-4xl font-black text-foreground">{summary.totalRsvps}</p>
+                <p className="mt-2 text-sm text-accent">across all events</p>
+              </div>
+              <div className="rounded-3xl border border-foreground/10 bg-surface p-6">
+                <p className="text-sm text-muted">Needs review</p>
+                <p className="mt-4 text-4xl font-black text-foreground">{pendingPosts.length + pendingGallery.length}</p>
+                <p className="mt-2 text-sm text-accent">
+                  {pendingPosts.length} post{pendingPosts.length === 1 ? "" : "s"} � {pendingGallery.length} photo{pendingGallery.length === 1 ? "" : "s"}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-10 grid gap-8 lg:grid-cols-2">
+              <div>
+                <h2 className="text-lg font-black uppercase tracking-[0.16em] text-foreground/80">Next on the calendar</h2>
+                <div className="mt-4 space-y-3">
+                  {upcomingEvents.map((event) => (
+                    <Link key={event.id} href={`/events/${event.slug}`} className="block rounded-2xl border border-foreground/10 bg-surface p-4 transition hover:border-accent/40">
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="font-bold text-foreground">{event.title}</p>
+                        <span className="shrink-0 text-xs text-muted/80">{formatShortDate(event.date)}</span>
+                      </div>
+                      <p className="mt-1 text-sm text-muted">
+                        {formatEventDate(event.date)} � {formatTime(event.time)}
+                      </p>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <h2 className="text-lg font-black uppercase tracking-[0.16em] text-foreground/80">Community pulse</h2>
+                <div className="mt-4 rounded-2xl border border-foreground/10 bg-surface p-5">
+                  <ul className="space-y-3 text-sm text-foreground/80">
+                    {metricCards.map((m) => (
+                      <li key={m.label} className="flex items-center justify-between gap-3 border-b border-foreground/5 pb-3 last:border-0 last:pb-0">
+                        <span>{m.label}</span>
+                        <span className="font-black text-foreground">{m.value}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+        {tab === "events" && (
+          <div>
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <h2 className="text-2xl font-black text-foreground">Events</h2>
+                <p className="mt-1 text-sm text-muted">
+                  {summary.published} published � {summary.draft} drafts
+                </p>
+              </div>
+              <Link
+                href="/events/new"
+                className="inline-flex items-center rounded-full bg-accent px-4 py-2 text-sm font-semibold text-accent-ink transition hover:bg-accent/85"
+              >
+                + New event
+              </Link>
+            </div>
+            <div className="overflow-hidden rounded-3xl border border-foreground/10 bg-surface">
+              <div className="hidden grid-cols-[1.6fr_0.8fr_0.7fr_0.6fr_1.4fr] gap-4 border-b border-foreground/10 px-5 py-3 text-xs uppercase tracking-[0.16em] text-muted/80 md:grid">
+                <p>Event</p>
+                <p>Date</p>
+                <p>Category</p>
+                <p>Status</p>
+                <p className="text-right">Actions</p>
+              </div>
+              {allEvents.length === 0 ? (
+                <p className="px-5 py-10 text-center text-sm text-muted">No events yet. Create your first one.</p>
+              ) : (
+                allEvents.map((event) => (
+                  <div key={event.id} className="grid grid-cols-1 gap-3 border-b border-foreground/5 px-5 py-4 last:border-0 md:grid-cols-[1.6fr_0.8fr_0.7fr_0.6fr_1.4fr] md:items-center md:gap-4">
+                    <div className="min-w-0">
+                      <Link href={`/events/${event.slug}`} className="font-bold text-foreground hover:text-accent">
+                        {event.title}
+                      </Link>
+                      <p className="mt-0.5 text-xs text-muted/80">
+                        {event.attending}/{event.capacity} RSVPs
+                      </p>
+                    </div>
+                    <p className="text-sm text-foreground/80">{formatShortDate(event.date)}</p>
+                    <div><Badge tone="accent">{event.category}</Badge></div>
+                    <div className="hidden md:block"><StatusBadge status={event.status} /></div>
+                    <div className="md:justify-self-end">
+                      <div className="mb-2 md:hidden"><StatusBadge status={event.status} /></div>
+                      <EventActions id={event.id} published={event.published} />
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+
+        {tab === "users" && (
+          <div>
+            <h2 className="text-2xl font-black text-foreground">Members</h2>
+            <p className="mt-1 text-sm text-muted">{adminUsers.length} people in the club</p>
+            <div className="mt-6 overflow-hidden rounded-3xl border border-foreground/10 bg-surface">
+              <div className="hidden grid-cols-[1.4fr_1fr_0.6fr_0.8fr] gap-4 border-b border-foreground/10 px-5 py-3 text-xs uppercase tracking-[0.16em] text-muted/80 lg:grid">
+                <p>Member</p>
+                <p>Email</p>
+                <p>Role</p>
+                <p className="text-right">Last active</p>
+              </div>
+              {adminUsers.map((u) => (
+                <div key={u.id} className="grid grid-cols-1 gap-3 border-b border-foreground/5 px-5 py-4 last:border-0 lg:grid-cols-[1.4fr_1fr_0.6fr_0.8fr] lg:items-center lg:gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent/20 text-xs font-black text-accent">
+                      {initials(u.name)}
+                    </div>
+                    <p className="font-bold text-foreground">{u.name}</p>
+                  </div>
+                  <p className="text-sm text-muted">{u.email}</p>
+                  <div><Badge tone={u.status === "Admin" ? "accent" : "neutral"}>{u.status}</Badge></div>
+                  <p className="text-sm text-muted/80 lg:text-right">{u.lastActive}</p>
+                </div>
+              ))}
+            </div>
+            </div>
+        )}
+        {tab === "content" && (
+          <>
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <h2 className="text-2xl font-black text-foreground">Community content</h2>
+                <p className="mt-1 text-sm text-muted">
+                  {posts.length} total / {pendingPosts.length} pending review
+                </p>
+              </div>
+              {(pendingPosts.length > 0 || pendingGallery.length > 0) && (
+                <p className="text-sm text-accent">
+                  {pendingPosts.length + pendingGallery.length} items need moderation
+                </p>
+              )}
+            </div>
+
+            {pendingPosts.length === 0 && pendingGallery.length === 0 ? (
+              <div className="rounded-3xl border border-dashed border-foreground/15 bg-surface px-6 py-14 text-center">
+                <div className="text-3xl">OK</div>
+                <h2 className="mt-4 text-xl font-black text-foreground">All clear</h2>
+                <p className="mx-auto mt-3 max-w-sm text-sm text-muted">
+                  Nothing waiting for review right now.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {pendingPosts.map((post) => (
+                  <div key={post.id} className="overflow-hidden rounded-3xl border border-foreground/10 bg-surface p-6">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-3">
+                          <p className="truncate font-bold text-foreground">{post.title}</p>
+                          <Badge tone={post.status === "pending" ? "warning" : "neutral"}>{post.status}</Badge>
+                        </div>
+                        <p className="mt-2 text-sm text-muted">by {post.authorName}</p>
+                        <p className="mt-3 leading-6 text-foreground/80">{post.body}</p>
+                      </div>
+                      <div className="shrink-0">
+                        <PostModeration id={post.id} status={post.status} />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+         {tab === "gallery" && (
+           <div>
+             <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+               <div>
+                 <h2 className="text-2xl font-black text-foreground">Gallery</h2>
+                 <p className="mt-1 text-sm text-muted">
+                   {galleryItems.length} total � {pendingGallery.length} pending approval
+                 </p>
+               </div>
+               <Link
+                 href="/gallery"
+                 className="inline-flex items-center rounded-full bg-foreground/10 px-4 py-2 text-sm font-semibold text-foreground transition hover:bg-foreground/20"
+               >
+                 View public gallery
+               </Link>
+             </div>
+
+             <div className="overflow-hidden rounded-3xl border border-foreground/10 bg-surface">
+               <div className="hidden grid-cols-[1.6fr_0.8fr_0.7fr_0.6fr_1.4fr] gap-4 border-b border-foreground/10 px-5 py-3 text-xs uppercase tracking-[0.16em] text-muted/80 md:grid">
+                 <p>Photo</p>
+                 <p>Title</p>
+                 <p>Tag</p>
+                 <p>Status</p>
+                 <p className="text-right">Actions</p>
+               </div>
+               {galleryItems.length === 0 ? (
+                 <p className="px-5 py-10 text-center text-sm text-muted">No gallery items yet.</p>
+               ) : (
+                 galleryItems.map((item) => (
+                   <div key={item.id} className="grid grid-cols-1 gap-3 border-b border-foreground/5 px-5 py-4 last:border-0 md:grid-cols-[1.6fr_0.8fr_0.7fr_0.6fr_1.4fr] md:items-center md:gap-4">
+                     <div className="min-w-0">
+                       <div className={`h-16 w-full shrink-0 rounded-xl bg-gradient-to-br ${item.imageClass}`} />
+                       <p className="mt-2 truncate font-bold text-foreground">{item.title}</p>
+                       <p className="mt-0.5 text-xs text-muted/80">{item.caption}</p>
+                     </div>
+                      <p className="truncate text-sm font-semibold text-foreground">{item.title}</p>
+                      <p className="hidden text-sm text-muted md:block">{item.tag}</p>
+                      <div className="hidden md:block"><StatusBadge status={item.status} /></div>
+                      <div className="md:justify-self-end">
+                        <div className="mb-2 md:hidden"><StatusBadge status={item.status} /></div>
+                        <GalleryModeration id={item.id} status={item.status} />
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
+
+         {tab === "settings" && (
+           <div className="max-w-2xl space-y-6">
+             <div>
+               <h2 className="text-2xl font-black text-foreground">Settings</h2>
+               <p className="mt-1 text-sm text-muted">Club preferences and moderation rules.</p>
+             </div>
+
+             <div className="rounded-3xl border border-foreground/10 bg-surface p-6 space-y-6">
+               <h3 className="text-sm font-black uppercase tracking-[0.16em] text-foreground/80">Moderation</h3>
+
+               <div className="rounded-xl border border-foreground/5 bg-foreground/5 p-4">
+                 <div className="flex items-start justify-between gap-4">
+                   <div>
+                     <p className="font-semibold text-foreground">Require approval for new posts</p>
+                     <p className="mt-1 text-sm text-muted">
+                       Community posts stay pending until a moderator approves them.
+                     </p>
+                   </div>
+                   <span className="shrink-0 rounded-full bg-accent/20 px-3 py-1 text-xs font-bold uppercase tracking-wider text-accent">
+                     On
+                   </span>
+                 </div>
+               </div>
+
+               <div className="rounded-xl border border-foreground/5 bg-foreground/5 p-4">
+                 <div className="flex items-start justify-between gap-4">
+                   <div>
+                     <p className="font-semibold text-foreground">Require approval for gallery uploads</p>
+                     <p className="mt-1 text-sm text-muted">
+                       Photos and highlights are reviewed before appearing on the public gallery.
+                     </p>
+                   </div>
+                   <span className="shrink-0 rounded-full bg-accent/20 px-3 py-1 text-xs font-bold uppercase tracking-wider text-accent">
+                     On
+                   </span>
+                 </div>
+               </div>
+
+               <div className="rounded-xl border border-foreground/5 bg-foreground/5 p-4">
+                 <div className="flex items-start justify-between gap-4">
+                   <div>
+                     <p className="font-semibold text-foreground">Auto-hide removed content</p>
+                     <p className="mt-1 text-sm text-muted">
+                       Removed posts and photos are hidden from the public feed immediately.
+                     </p>
+                   </div>
+                   <span className="shrink-0 rounded-full bg-accent/20 px-3 py-1 text-xs font-bold uppercase tracking-wider text-accent">
+                     On
+                   </span>
+                 </div>
+               </div>
+             </div>
+
+             <div className="rounded-3xl border border-foreground/10 bg-surface p-6 space-y-6">
+               <h3 className="text-sm font-black uppercase tracking-[0.16em] text-foreground/80">Club information</h3>
+
+               <div className="space-y-4">
+                 <div>
+                   <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.16em] text-muted">Club name</label>
+                   <p className="font-semibold text-foreground">WAGMI Club</p>
+                 </div>
+                 <div>
+                   <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.16em] text-muted">Tagline</label>
+                   <p className="text-foreground/80">Run together, grow together.</p>
+                 </div>
+                 <div>
+                   <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.16em] text-muted">Location</label>
+                   <p className="text-foreground/80">London, UK</p>
+                 </div>
+               </div>
+             </div>
+
+             <div className="rounded-3xl border border-foreground/10 bg-surface p-6">
+               <h3 className="text-sm font-black uppercase tracking-[0.16em] text-foreground/80">Danger zone</h3>
+               <p className="mt-1 text-sm text-muted">
+                 These actions are permanent. Use them carefully.
+               </p>
+               <div className="mt-5 flex flex-wrap gap-3">
+                 <button
+                   type="button"
+                   className="rounded-xl border border-danger/40 bg-danger/10 px-4 py-2 text-sm font-semibold text-danger transition hover:bg-danger/20 hover:border-danger/60"
+                 >
+                   Reset demo data
+                 </button>
+                 <button
+                   type="button"
+                   className="rounded-xl border border-foreground/10 bg-foreground/5 px-4 py-2 text-sm font-semibold text-foreground/80 transition hover:bg-foreground/10"
+                 >
+                   Export member list
+                 </button>
+               </div>
+             </div>
+
+             <p className="text-xs leading-5 text-muted/80">
+               Settings are stored in the Supabase-backed config table once Auth is connected. Today these reflect the
+               mock service defaults.
+             </p>
+           </div>
+         )}
+       </section>
+     </main>
+   );
+}

@@ -1,0 +1,161 @@
+@import "tailwindcss";
+
+/* ————— WAGMI palette tokens (light + dark) ————— */
+
+:root {
+  color-scheme: light;
+  --background: #f2ecdf; /* warm cream */
+  --surface: #e9e1d0;    /* beige panel */
+  --surface-2: #ded2ba;  /* deeper beige */
+  --foreground: #1b1611; /* warm near-black */
+  --muted: #6f6659;      /* warm grey */
+  --accent: #c8b08a;     /* WAGMI beige */
+  --accent-ink: #241c11; /* type on beige */
+  --line: rgba(27, 22, 17, 0.16);
+  --danger: #8f4a28;     /* muted rust for errors */
+}
+
+html.dark {
+  color-scheme: dark;
+  --background: #12100c;
+  --surface: #1c1813;
+  --surface-2: #262019;
+  --foreground: #f1e9d8;
+  --muted: #a89e8c;
+  --accent: #c8b08a;
+  --accent-ink: #241c11;
+  --line: rgba(241, 233, 216, 0.16);
+  --danger: #d18b5d;
+}
+
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-line: var(--line);
+  --color-danger: var(--danger);
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --font-script: var(--font-script);
+  --font-kicker: var(--font-kicker);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-body), Inter, Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+body, h1, h2, h3, h4, h5, h6, p {
+  margin: 0;
+}
+
+/* ————— WAGMI design primitives ————— */
+
+.font-display {
+  font-family: var(--font-display), "Archivo Black", "Arial Black", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  line-height: 0.9;
+}
+
+.font-script {
+  font-family: var(--font-script), cursive;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.font-kicker {
+  font-family: var(--font-kicker), monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+}
+
+.kicker {
+  font-family: var(--font-kicker), monospace;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.kicker::before {
+  content: "";
+  width: 22px;
+  height: 2px;
+  background: var(--accent);
+  display: inline-block;
+}
+
+.kicker--dark::before {
+  background: var(--accent-ink);
+}
+
+.bw-photo {
+  filter: grayscale(1) contrast(1.12) brightness(0.82);
+}
+
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.12;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.rule-t {
+  border-top: 1px solid var(--line);
+}
+
+.rule-t-dark {
+  border-top: 1px solid var(--line);
+}
+
+/* marquee ticker */
+@keyframes wagmi-ticker {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.ticker-track {
+  display: flex;
+  width: max-content;
+  animation: wagmi-ticker 28s linear infinite;
+}
+
+/* brush slash */
+.brush-slash {
+  position: absolute;
+  pointer-events: none;
+  background: var(--accent);
+  transform: skewX(-18deg) rotate(-4deg);
+  mix-blend-mode: normal;
+}
+
+button, a {
+  transition: color 0.18s ease, background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
