@@ -1,92 +1,110 @@
 @import "tailwindcss";
 
-/* ————— WAGMI palette tokens (light + dark) ————— */
+/* ============================================================
+   WAGMI Club — final warm-neutral theme system
+   Light: warm cream / near-black ink / sand accents
+   Dark:  near-black / warm off-white ink / sand accents
+   No lime / neon / blue / purple. Photography stays colourful.
+   ============================================================ */
 
+/* ---------- Light (default) ---------- */
 :root {
   color-scheme: light;
-  --background: #f2ecdf; /* warm cream */
-  --surface: #e9e1d0;    /* beige panel */
-  --surface-2: #ded2ba;  /* deeper beige */
-  --foreground: #1b1611; /* warm near-black */
-  --muted: #6f6659;      /* warm grey */
-  --accent: #c8b08a;     /* WAGMI beige */
-  --accent-ink: #241c11; /* type on beige */
-  --line: rgba(27, 22, 17, 0.16);
-  --danger: #8f4a28;     /* muted rust for errors */
+  --background: #F2ECDF;
+  --surface:    #E9E1D0;
+  --surface-2:  #DED2BA;
+  --foreground: #1B1611;
+  --muted:      #6F6659;
+  --muted-2:    #8A7F6C;
+  --beige:      #C8B08A;
+  --beige-2:    #B59C73;
+  --accent:     #C8B08A;
+  --accent-ink:#1B1611;
+  --border:     rgba(27, 22, 17, 0.14);
+  --border-strong: rgba(27, 22, 17, 0.22);
+  --line:       rgba(27, 22, 17, 0.14);
+  --danger:     #8C3B2A;
+  --shadow:     0 1px 0 rgba(27, 22, 17, 0.05), 0 14px 32px -18px rgba(27, 22, 17, 0.18);
 }
 
+/* ---------- Dark ---------- */
 html.dark {
   color-scheme: dark;
-  --background: #12100c;
-  --surface: #1c1813;
-  --surface-2: #262019;
-  --foreground: #f1e9d8;
-  --muted: #a89e8c;
-  --accent: #c8b08a;
-  --accent-ink: #241c11;
-  --line: rgba(241, 233, 216, 0.16);
-  --danger: #d18b5d;
+  --background: #12100C;
+  --surface:    #1C1813;
+  --surface-2:  #262019;
+  --foreground: #F1E9D8;
+  --muted:      #A89E8C;
+  --muted-2:    #7E7462;
+  --beige:      #C8B08A;
+  --beige-2:    #8A7353;
+  --accent:     #C8B08A;
+  --accent-ink:#12100C;
+  --border:     rgba(241, 233, 216, 0.16);
+  --border-strong: rgba(241, 233, 216, 0.26);
+  --line:       rgba(241, 233, 216, 0.16);
+  --danger:     #D97A5C;
+  --shadow:     0 1px 0 rgba(0, 0, 0, 0.4), 0 18px 40px -20px rgba(0, 0, 0, 0.7);
 }
 
 @theme {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-surface: var(--surface);
-  --color-surface-2: var(--surface-2);
-  --color-muted: var(--muted);
-  --color-accent: var(--accent);
-  --color-accent-ink: var(--accent-ink);
-  --color-line: var(--line);
-  --color-danger: var(--danger);
+  --color-background:   var(--background);
+  --color-surface:      var(--surface);
+  --color-surface-2:    var(--surface-2);
+  --color-foreground:   var(--foreground);
+  --color-muted:        var(--muted);
+  --color-muted-2:      var(--muted-2);
+  --color-beige:        var(--beige);
+  --color-beige-2:      var(--beige-2);
+  --color-accent:       var(--accent);
+  --color-accent-strong:var(--beige-2);
+  --color-accent-ink:   var(--accent-ink);
+  --color-border:       var(--border);
+  --color-border-strong:var(--border-strong);
+  --color-line:         var(--line);
+  --color-danger:       var(--danger);
+  --color-shadow:       var(--shadow);
+
   --font-display: var(--font-display);
-  --font-body: var(--font-body);
-  --font-script: var(--font-script);
-  --font-kicker: var(--font-kicker);
+  --font-body:    var(--font-body);
+  --font-script:  var(--font-script);
+  --font-kicker:  var(--font-kicker);
 }
 
-* {
-  box-sizing: border-box;
-}
-
-html {
-  scroll-behavior: smooth;
-}
-
+/* ---------- resets ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
 body {
   margin: 0;
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-body), Inter, Arial, Helvetica, sans-serif;
+  font-family: var(--font-body), system-ui, -apple-system, "Segoe UI", Roboto, Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
-
-body, h1, h2, h3, h4, h5, h6, p {
-  margin: 0;
-}
-
-/* ————— WAGMI design primitives ————— */
+body, h1, h2, h3, h4, h5, h6, p, figure, blockquote, ol, ul, li, dl, dd { margin: 0; padding: 0; }
+img, video { display: block; max-width: 100%; }
+button, input, select, textarea { font: inherit; color: inherit; }
+a { color: inherit; text-decoration: none; }
+ul, ol { list-style: none; }
+hr { border: 0; border-top: 1px solid var(--line); margin: 0; }
 
 .font-display {
-  font-family: var(--font-display), "Archivo Black", "Arial Black", sans-serif;
+  font-family: var(--font-display), "Archivo Black", "Arial Black", "Impact", sans-serif;
   text-transform: uppercase;
   letter-spacing: -0.02em;
   line-height: 0.9;
+  font-weight: 400;
 }
-
-.font-script {
-  font-family: var(--font-script), cursive;
-  text-transform: none;
-  letter-spacing: 0;
-}
-
+.font-script { font-family: var(--font-script), cursive; text-transform: none; letter-spacing: 0; }
 .font-kicker {
-  font-family: var(--font-kicker), monospace;
+  font-family: var(--font-kicker), ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   text-transform: uppercase;
   letter-spacing: 0.18em;
 }
-
 .kicker {
-  font-family: var(--font-kicker), monospace;
+  font-family: var(--font-kicker), ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
@@ -95,67 +113,131 @@ body, h1, h2, h3, h4, h5, h6, p {
   align-items: center;
   gap: 10px;
 }
+.kicker::before { content: ""; width: 22px; height: 2px; background: var(--beige); display: inline-block; }
 
-.kicker::before {
-  content: "";
-  width: 22px;
-  height: 2px;
-  background: var(--accent);
-  display: inline-block;
-}
+.kicker--beige::before { background: var(--beige); }
+.kicker--muted { color: var(--muted); }
+.kicker--muted::before { background: var(--muted-2); }
 
-.kicker--dark::before {
-  background: var(--accent-ink);
-}
+/* ---------- photographic containment ---------- */
+.photo-cover  { width: 100%; height: 100%; object-fit: cover; object-position: center; }
+.photo-contain{ width: 100%; height: 100%; object-fit: contain; object-position: center; }
 
-.bw-photo {
-  filter: grayscale(1) contrast(1.12) brightness(0.82);
-}
-
+/* subtle grain for photography-led sections */
 .grain::after {
   content: "";
   position: absolute;
   inset: 0;
   pointer-events: none;
-  opacity: 0.12;
-  mix-blend-mode: overlay;
+  opacity: 0.06;
+  mix-blend-mode: multiply;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
-.rule-t {
-  border-top: 1px solid var(--line);
+/* ---------- layout ---------- */
+/* prevent accidental horizontal scroll on small screens */
+html, body { overflow-x: clip; }
+.container {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+@media (min-width: 640px) { .container { padding-left: 24px; padding-right: 24px; } }
+@media (min-width: 1024px) {
+  .container { max-width: 1280px; padding-left: 40px; padding-right: 40px; }
 }
 
-.rule-t-dark {
-  border-top: 1px solid var(--line);
-}
-
-/* marquee ticker */
-@keyframes wagmi-ticker {
+/* ---------- handmade squiggle accents (subtle, sparing) ---------- */
+@keyframes ticker-scroll {
   from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
+  to   { transform: translateX(-50%); }
 }
-
 .ticker-track {
   display: flex;
   width: max-content;
-  animation: wagmi-ticker 28s linear infinite;
+  animation: ticker-scroll 30s linear infinite;
 }
 
-/* brush slash */
+/* organic brush / squiggle silhouette, used sparingly */
 .brush-slash {
-  position: absolute;
-  pointer-events: none;
-  background: var(--accent);
-  transform: skewX(-18deg) rotate(-4deg);
-  mix-blend-mode: normal;
+  background-repeat: no-repeat;
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 14'%3E%3Cpath d='M2 7 Q 18 1 30 7 T 58 7 T 86 7 T 118 7' fill='none' stroke='black' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E");
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 14'%3E%3Cpath d='M2 7 Q 18 1 30 7 T 58 7 T 86 7 T 118 7' fill='none' stroke='black' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E");
+  mask-size: 100% 100%;
+  -webkit-mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+  -webkit-mask-repeat: no-repeat;
 }
 
-button, a {
-  transition: color 0.18s ease, background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+/* ---------- motion / interaction ---------- */
+button, a, input, select, textarea {
+  transition: color 0.16s ease, background-color 0.16s ease, border-color 0.16s ease, transform 0.16s ease, opacity 0.16s ease;
+}
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+::selection { background: var(--beige-2); color: var(--foreground); }
+html.dark ::selection { background: var(--beige-2); color: var(--foreground); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
-::selection {
-  background: var(--accent);
-  color: var(--accent-ink);
+/* ---------- utilities ---------- */
+.rule-t { border-top: 1px solid var(--line); }
+.rule-b { border-bottom: 1px solid var(--line); }
+
+/* soft overlay for text legibility on photography — never heavy */
+.photo-overlay {
+  background: linear-gradient(to top, rgba(11, 9, 7, 0.55) 0%, rgba(11, 9, 7, 0.18) 55%, rgba(11, 9, 7, 0.02) 100%);
+}
+html.dark .photo-overlay {
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.32) 55%, rgba(0, 0, 0, 0.04) 100%);
+}
+
+/* keep photography colourful by default (no B&W filter) */
+.photo-authentic {
+  filter: contrast(1.02) saturate(1.02);
+}
+html.dark .photo-authentic {
+  filter: contrast(1.04) saturate(1.03);
+}
+
+/* checkout form inputs */
+.cart-input {
+  width: 100%;
+  border-radius: 0;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  color: var(--foreground);
+}
+.cart-input::placeholder { color: var(--muted-2); }
+.cart-input:focus {
+  outline: none;
+  border-color: var(--border-strong);
+  box-shadow: 0 0 0 1px var(--border-strong);
+}
+.cart-input option { background: var(--surface); color: var(--foreground); }
+
+/* Nav logo: black artwork filled with theme colour via CSS mask (no filters) */
+.logo-mask {
+  display: inline-block;
+  background-color: var(--foreground);
+  -webkit-mask: url("/wagmi-logo.png") no-repeat center / contain;
+  mask: url("/wagmi-logo.png") no-repeat center / contain;
+  transition: background-color 0.2s ease;
+}
+.logo-mask:hover,
+.logo-mask--active {
+  background-color: #cdbb9d;
 }

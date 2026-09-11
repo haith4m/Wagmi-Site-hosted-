@@ -1,30 +1,26 @@
 import Link from "next/link";
 import { services } from "@/lib/services";
+import {
+  PhotoLightboxGrid,
+  type PhotoTile,
+} from "@/components/gallery/photo-lightbox";
 import type { GalleryItem } from "@/types";
 
 export const dynamic = "force-dynamic";
 
 const TAGS = ["Community", "Trail", "Training", "Wellbeing"];
 
-function GalleryTile({ item, index }: { item: GalleryItem; index: number }) {
-  const tall = index % 3 === 0;
-  return (
-    <figure className={`group relative overflow-hidden rounded-md border border-foreground/10 bg-surface ${tall ? "md:row-span-2" : ""} ${index % 4 === 1 ? "md:mt-8" : ""}`}>
-      <div className={`bw-photo relative w-full bg-foreground/10 ${tall ? "md:h-full md:min-h-80" : "h-56"}`} style={{ backgroundImage: `repeating-linear-gradient(${115 + index * 14}deg, color-mix(in srgb, var(--foreground) 12%, transparent) 0 3px, transparent 3px 16px)` }}>
-        <div className="absolute inset-0 bg-gradient-to-t from-background/85 via-transparent to-transparent opacity-80 transition-opacity duration-300 group-hover:opacity-100" />
-        <div className="absolute inset-x-0 bottom-0 p-4">
-          <p className="font-kicker text-[10px] uppercase tracking-[0.2em] text-accent">{item.tag}</p>
-          <p className="mt-1 text-sm font-bold text-foreground">{item.title}</p>
-          <p className="mt-1 font-kicker text-[10px] uppercase tracking-[0.16em] text-foreground/50">Ektachrome — {item.caption.slice(0, 28)}</p>
-        </div>
-      </div>
-      <figcaption className="rule-t flex items-center justify-between p-4">
-        <p className="truncate text-sm font-bold text-foreground">{item.title}</p>
-        <p className="font-kicker text-[10px] uppercase tracking-[0.16em] text-foreground/40">{item.tag}</p>
-      </figcaption>
-    </figure>
-  );
+/** Convert GalleryItem → PhotoTile for the editorial grid + lightbox. */
+function toPhotoTile(item: GalleryItem): PhotoTile {
+  return {
+    id: item.id,
+    src: item.imageUrl ?? "",
+    title: item.title,
+    caption: item.caption,
+    tag: item.tag,
+  };
 }
+
 
 export default async function GalleryPage({
   searchParams,
@@ -87,11 +83,11 @@ export default async function GalleryPage({
             </p>
           </div>
         ) : (
-          <div className="grid gap-5 md:grid-cols-2 md:[grid-auto-flow:dense] lg:grid-cols-3">
-            {items.map((item, index) => (
-              <GalleryTile key={item.id} item={item} index={index} />
-            ))}
-          </div>
+          <PhotoLightboxGrid
+            photos={items.map(toPhotoTile)}
+            columns="sm:grid-cols-2 lg:grid-cols-3"
+            tilt
+          />
         )}
       </section>
 

@@ -5,7 +5,6 @@ import type {
   Event,
   EventParticipant,
   GalleryItem,
-  MetricCard,
   Profile,
   User,
 } from "@/types";
@@ -124,7 +123,15 @@ export const mockProfiles: Profile[] = [
 
 const iso = (d: string): string => `${d}T12:00:00Z`;
 
-export const mockEvents: Event[] = [
+export const mockEvents: Event[] = [];
+
+/**
+ * Seed demo events kept unexported so the app starts with a clean, real-data
+ * calendar. The CRUD seam is already live — POST/PATCH/DELETE under /api/events
+ * and the admin desk create, publish and edit events through the same service.
+ * To restore the demo content, point `mockEvents` at `seedEvents` again.
+ */
+const seedEvents: Event[] = [
   {
     id: "evt_sunrise",
     title: "Sunrise 5K Social Run",
@@ -253,7 +260,10 @@ export const mockEvents: Event[] = [
   },
 ];
 
-export const mockParticipants: EventParticipant[] = [
+export const mockParticipants: EventParticipant[] = [];
+
+// Seed RSVPs for the seed events above — kept unexported for the same reason.
+const seedParticipants: EventParticipant[] = [
   {
     id: "rsvp_1",
     eventId: "evt_sunrise",
@@ -292,65 +302,87 @@ export const mockParticipants: EventParticipant[] = [
   },
 ];
 
-export const mockGallery: GalleryItem[] = [
+export const mockGallery: GalleryItem[] = [];
+
+/**
+ * Seed gallery items kept unexported — the feed starts empty for real member
+ * uploads. The CRUD seam is already live — POST/PATCH/DELETE under /api/gallery
+ * and the admin desk publishes and moderates items through the same service.
+ * To restore the demo content, point `mockGallery` at `seedGallery` again.
+ */
+const seedGallery: GalleryItem[] = [
   {
-    id: "gal_1",
-    title: "Weekend runners",
-    caption: "Sunrise finish line energy from our Wednesday crew.",
+    id: "gal_6",
+    title: "Night crew by the river",
+    caption: "Post-session glow, Greenwich riverside.",
     tag: "Community",
-    imageUrl: null,
-    imageClass: "from-[#a8a093] via-[#8f8677] to-[#6e6659]",
+    imageUrl: "/gallery/night-run-crew-riverside.jpg",
+    imageClass: "from-[#5c554a] via-[#75695a] to-[#3f3a32]",
     status: "published",
     uploadedBy: "u_demo",
-    createdAt: iso("2026-08-20"),
+    createdAt: iso("2026-09-01"),
   },
   {
-    id: "gal_2",
-    title: "Trail session",
-    caption: "A wet-weather climb that turned into a great story.",
-    tag: "Trail",
-    imageUrl: null,
+    id: "gal_7",
+    title: "Dusk along the path",
+    caption: "Cable line overhead, blue hour on the water.",
+    tag: "Wellbeing",
+    imageUrl: "/gallery/greenwich-dusk-riverside.jpg",
+    imageClass: "from-[#c9b18c] via-[#b39b74] to-[#8a744f]",
+    status: "published",
+    uploadedBy: "u_demo",
+    createdAt: iso("2026-09-02"),
+  },
+  {
+    id: "gal_8",
+    title: "Medal day",
+    caption: "35155 across the line, all smiles.",
+    tag: "Community",
+    imageUrl: "/gallery/london-marathon-finisher.jpg",
+    imageClass: "from-[#6e4f38] via-[#8a6a4e] to-[#4a3526]",
+    status: "published",
+    uploadedBy: "u_noah",
+    createdAt: iso("2026-09-04"),
+  },
+  {
+    id: "gal_9",
+    title: "Crew in the lens",
+    caption: "Shades up, miles done.",
+    tag: "Training",
+    imageUrl: "/gallery/crew-in-the-lens.jpg",
     imageClass: "from-[#e5dbc6] via-[#d3c5a8] to-[#b3a385]",
     status: "published",
     uploadedBy: "u_priya",
-    createdAt: iso("2026-08-17"),
+    createdAt: iso("2026-09-05"),
   },
   {
-    id: "gal_3",
-    title: "Strength lab",
-    caption: "Mobility work that kept everyone moving in the right direction.",
-    tag: "Training",
-    imageUrl: null,
+    id: "gal_10",
+    title: "Backstage with Mo",
+    caption: "Sir Mo Farah, no time to overthink.",
+    tag: "Community",
+    imageUrl: "/gallery/with-mo-farah.jpg",
     imageClass: "from-[#7d715c] via-[#94866e] to-[#5c5240]",
     status: "published",
     uploadedBy: "u_theo",
-    createdAt: iso("2026-08-11"),
+    createdAt: iso("2026-09-07"),
   },
   {
-    id: "gal_4",
-    title: "Recovery circles",
-    caption: "Members sharing progress, encouragement, and honest updates.",
-    tag: "Wellbeing",
-    imageUrl: null,
-    imageClass: "from-[#5c554a] via-[#75695a] to-[#3f3a32]",
+    id: "gal_11",
+    title: "The support crew",
+    caption: "Signs up, flag out, so are you.",
+    tag: "Community",
+    imageUrl: "/gallery/marathon-support-crew.jpg",
+    imageClass: "from-[#a8a093] via-[#8f8677] to-[#6e6659]",
     status: "published",
     uploadedBy: "u_noah",
-    createdAt: iso("2026-08-05"),
-  },
-  {
-    id: "gal_5",
-    title: "Summer Night 5K",
-    caption: "112 finishers, one finish-line photo wall.",
-    tag: "Community",
-    imageUrl: null,
-    imageClass: "from-[#6e4f38] via-[#8a6a4e] to-[#4a3526]",
-    status: "pending",
-    uploadedBy: null,
-    createdAt: iso("2026-08-28"),
+    createdAt: iso("2026-09-08"),
   },
 ];
 
-export const mockCommunity: CommunityContent[] = [
+export const mockCommunity: CommunityContent[] = [];
+
+// Seed posts kept unexported — the feed starts empty for real member notes.
+const seedCommunity: CommunityContent[] = [
   {
     id: "post_1",
     authorId: "u_noah",
@@ -386,12 +418,7 @@ export const mockCommunity: CommunityContent[] = [
   },
 ];
 
-export const metricCards: MetricCard[] = [
-  { label: "This month", value: "42 runs", change: "+12%" },
-  { label: "Active members", value: "1.2k", change: "+8%" },
-  { label: "Events joined", value: "19", change: "+5" },
-  { label: "Community streak", value: "18 days", change: "Strong" },
-];
+// Admin "club pulse" metrics are computed from live service data in app/admin/page.tsx.
 
 export const adminUsers: AdminUserRow[] = [
   { id: "u_demo", name: "Aisha Morgan", email: "aisha@wagmi.club", status: "Admin", lastActive: "2 hours ago" },

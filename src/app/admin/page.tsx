@@ -7,7 +7,7 @@ import { PostModeration } from "@/components/admin/post-moderation";
 import { services } from "@/lib/services";
 import { getCurrentUser } from "@/lib/session";
 import { formatEventDate, formatShortDate, formatTime, initials } from "@/lib/format";
-import { adminUsers, metricCards } from "@/data/mock-data";
+import { adminUsers } from "@/data/mock-data";
 import type { AdminRole, GalleryItem, CommunityContent } from "@/types";
 
 export const dynamic = "force-dynamic";
@@ -144,18 +144,28 @@ export default async function AdminPage({
                 <h2 className="text-lg font-black uppercase tracking-[0.16em] text-foreground/80">Community pulse</h2>
                 <div className="mt-4 rounded-2xl border border-foreground/10 bg-surface p-5">
                   <ul className="space-y-3 text-sm text-foreground/80">
-                    {metricCards.map((m) => (
-                      <li key={m.label} className="flex items-center justify-between gap-3 border-b border-foreground/5 pb-3 last:border-0 last:pb-0">
-                        <span>{m.label}</span>
-                        <span className="font-black text-foreground">{m.value}</span>
-                      </li>
-                    ))}
+                    <li className="flex items-center justify-between gap-3 border-b border-foreground/5 py-2">
+                      <span>Community posts</span>
+                      <span className="font-black text-foreground">{posts.filter((p) => p.status === "published").length}</span>
+                    </li>
+                    <li className="flex items-center justify-between gap-3 border-b border-foreground/5 py-2">
+                      <span>Published events</span>
+                      <span className="font-black text-foreground">{publishedEvents.length}</span>
+                    </li>
+                    <li className="flex items-center justify-between gap-3 border-b border-foreground/5 py-2">
+                      <span>Gallery items</span>
+                      <span className="font-black text-foreground">{galleryItems.filter((g) => g.status === "published").length}</span>
+                    </li>
+                    <li className="flex items-center justify-between gap-3 pt-2">
+                      <span>Members</span>
+                      <span className="font-black text-foreground">{profiles.length}</span>
+                    </li>
                   </ul>
                 </div>
               </div>
-            </div>
-          </>
-        )}
+              </div>
+            </>
+          )}
         {tab === "events" && (
           <div>
             <div className="mb-6 flex flex-wrap items-center justify-between gap-4">

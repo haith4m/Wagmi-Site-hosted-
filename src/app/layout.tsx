@@ -3,7 +3,6 @@ import { Archivo_Black, Inter, Caveat, Space_Mono } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
-import { getCurrentUser } from "@/lib/session";
 
 const display = Archivo_Black({
   weight: "400",
@@ -36,9 +35,7 @@ export const metadata: Metadata = {
   description: "WAGMI Club — premium London running club. Running. Community. Progress.",
 };
 
-export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const user = await getCurrentUser();
-
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html
       lang="en"
@@ -53,8 +50,8 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           }}
         />
       </head>
-      <body className="min-h-full flex flex-col bg-background text-foreground">
-        <SiteHeader sessionUser={user ? { displayName: user.displayName } : null} />
+      <body suppressHydrationWarning className="min-h-full flex flex-col bg-background text-foreground">
+        <SiteHeader />
         <div className="flex-1">{children}</div>
         <SiteFooter />
       </body>
