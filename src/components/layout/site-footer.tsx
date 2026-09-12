@@ -39,8 +39,8 @@ export function SiteFooter() {
           <div>
             <Link href="/" className="group inline-flex items-center" aria-label="WAGMI Club home">
               <span
-                className="logo-mask block w-[200px]"
-                style={{ aspectRatio: "1818 / 865" }}
+                className="logo-mask block w-[110px]"
+                style={{ aspectRatio: "1 / 1" }}
                 role="img"
                 aria-label="WAGMI Club logo"
               />

@@ -1,7 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
-
 const STORAGE_KEY = "wagmi-theme";
 
 function applyTheme(mode: "light" | "dark") {
@@ -10,20 +8,6 @@ function applyTheme(mode: "light" | "dark") {
 }
 
 export function ThemeToggle({ className = "" }: { className?: string }) {
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    const onChange = (e: MediaQueryListEvent) => {
-      let stored: string | null = null;
-      try {
-        stored = localStorage.getItem(STORAGE_KEY);
-      } catch {}
-      if (stored === "light" || stored === "dark") return;
-      applyTheme(e.matches ? "dark" : "light");
-    };
-    mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
-  }, []);
-
   function toggle() {
     const isDark = document.documentElement.classList.contains("dark");
     const next: "light" | "dark" = isDark ? "light" : "dark";

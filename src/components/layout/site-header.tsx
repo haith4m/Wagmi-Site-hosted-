@@ -22,8 +22,8 @@ export function SiteHeader() {
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-4 sm:px-6 lg:px-8">
         <Link href="/" className="group flex shrink-0 items-center" aria-label="WAGMI Club home">
           <span
-            className={`logo-mask w-[104px] sm:w-[120px] ${pathname === "/" ? "logo-mask--active" : "group-hover:bg-[#cdbb9d]"}`}
-            style={{ aspectRatio: "1818 / 865" }}
+            className={`logo-mask w-[50px] sm:w-[58px] ${pathname === "/" ? "logo-mask--active" : "group-hover:bg-[#cdbb9d]"}`}
+            style={{ aspectRatio: "1 / 1" }}
           />
         </Link>
 
@@ -69,7 +69,6 @@ export function SiteHeader() {
       {open && (
         <nav className="fixed inset-x-0 top-full bottom-0 z-40 flex flex-col bg-background px-6 pb-10 pt-8 md:hidden" aria-label="Mobile">
           <div className="flex flex-col gap-2">
-            <Link href="/" onClick={() => setOpen(false)} className="rule-t py-4 font-display text-5xl text-foreground">Run</Link>
             {NAV_ITEMS.map((item) => (
               <Link key={item.href} href={item.href} onClick={() => setOpen(false)} className="rule-t py-4 font-display text-5xl text-foreground">
                 {item.label}

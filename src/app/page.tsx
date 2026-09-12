@@ -37,9 +37,9 @@ export default function HomePage() {
                   <Image
                     src="/wagmi-logo.png"
                     alt="WAGMI Club logo"
-                    width={760}
-                    height={0}
-                    className="h-auto w-[clamp(170px,30vw,400px)] brightness-0 invert"
+                    width={600}
+                    height={600}
+                    className="h-auto w-[clamp(140px,20vw,260px)] brightness-0 invert"
                     priority
                   />
                 </Link>
